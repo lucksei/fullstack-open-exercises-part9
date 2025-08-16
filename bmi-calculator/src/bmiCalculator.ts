@@ -10,8 +10,14 @@ const calculateBmi = (height: number, weight: number): string => {
   }
 };
 
-const height: number = Number(process.argv[2]);
-const weight: number = Number(process.argv[3]);
-console.log(`height: ${height} [cm]`);
-console.log(`weight: ${weight} [kg]`);
-console.log(calculateBmi(height, weight));
+export { calculateBmi };
+
+// Runtime, i.e "npm run calculateExercises 2 3 0 2 4.5 0 3 1" // TODO: Move this to the exerciseCalculator.ts file
+// Runtime, i.e. "npm run calculateBmi 180 73"
+if (require.main === module) {
+  const height: number = Number(process.argv[2]);
+  const weight: number = Number(process.argv[3]);
+  console.log(`height: ${height} [cm]`);
+  console.log(`weight: ${weight} [kg]`);
+  console.log(calculateBmi(height, weight));
+}
