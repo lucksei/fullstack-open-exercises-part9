@@ -5,6 +5,11 @@ import { calculateBmi } from './src/bmiCalculator';
 
 const app = express();
 
+// Custom error type
+interface HttpError extends Error {
+  status?: number;
+}
+
 // Query parser
 app.set('query parser', (str: string) => qs.parse(str));
 
@@ -17,7 +22,9 @@ app.get('/bmi', (req, res, next) => {
   const weight: number = Number(req.query.weight);
   const height: number = Number(req.query.height);
   if (!weight || !height) {
-    next(new Error('malformatted parameters'));
+    const error: HttpError = new Error('malformatted parameters');
+    error.status = 400;
+    next(error);
   }
 
   const bmi = calculateBmi(height, weight);
@@ -26,10 +33,10 @@ app.get('/bmi', (req, res, next) => {
 });
 
 // Custom error middleware
-app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+app.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err);
-  const statusCode = err.statusCode || 500;
-  const message = err.message;
+  const statusCode: number = err.status || 500;
+  const message: string = String(err.message);
   res.status(statusCode).json({
     error: message,
   });
