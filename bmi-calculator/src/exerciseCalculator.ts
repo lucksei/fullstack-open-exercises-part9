@@ -75,13 +75,18 @@ const calculateExercises = (
   };
 };
 
-const target: number = Number(process.argv[2]);
-const dailyExerciseHours: number[] = process.argv
-  .slice(3)
-  .map((h) => Number(h));
+export { calculateExercises };
 
-console.log(`target: ${target} hours`);
-console.log(`dailyExerciseHours: [${dailyExerciseHours.join(', ')}] hours`);
+// Runtime, i.e "npm run calculateExercises 2 3 0 2 4.5 0 3 1"
+if (require.main === module) {
+  const target: number = Number(process.argv[2]);
+  const dailyExerciseHours: number[] = process.argv
+    .slice(3)
+    .map((h) => Number(h));
 
-const results = calculateExercises(dailyExerciseHours, target);
-console.log(results);
+  console.log(`target: ${target} hours`);
+  console.log(`dailyExerciseHours: [${dailyExerciseHours.join(', ')}] hours`);
+
+  const results = calculateExercises(dailyExerciseHours, target);
+  console.log(results);
+}

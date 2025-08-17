@@ -2,16 +2,20 @@ import express, { Request, Response, NextFunction } from 'express';
 import qs from 'qs';
 
 import { calculateBmi } from './src/bmiCalculator';
+import { calculateExercises } from './src/exerciseCalculator';
 
 const app = express();
 
-// Custom error type
+// Custom error interface
 interface HttpError extends Error {
   status?: number;
 }
 
 // Query parser
 app.set('query parser', (str: string) => qs.parse(str));
+
+// Body
+app.use(express.json());
 
 // Routes
 app.get('/hello', (_req, res) => {
@@ -30,6 +34,26 @@ app.get('/bmi', (req, res, next) => {
   const bmi = calculateBmi(height, weight);
 
   res.json({ bmi, weight, height });
+});
+
+app.post('/exercises', (req, res, next) => {
+  interface exerciseReqBody {
+    hours: number[];
+    target: number;
+  }
+  const body = req.body as exerciseReqBody;
+  const dailyExerciseHours: number[] = body.hours.map((h: number) => Number(h));
+  console.log(dailyExerciseHours);
+  const target: number = Number(body.target);
+
+  if (!dailyExerciseHours || !target) {
+    const error: HttpError = new Error('malformatted parameters');
+    error.status = 400;
+    next(error);
+  }
+
+  const result = calculateExercises(dailyExerciseHours, target);
+  res.json({ result });
 });
 
 // Custom error middleware
