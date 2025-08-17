@@ -41,19 +41,26 @@ app.post('/exercises', (req, res, next) => {
     hours: number[];
     target: number;
   }
-  const body = req.body as exerciseReqBody;
-  const dailyExerciseHours: number[] = body.hours.map((h: number) => Number(h));
-  console.log(dailyExerciseHours);
-  const target: number = Number(body.target);
 
-  if (!dailyExerciseHours || !target) {
+  const body = req.body as exerciseReqBody;
+
+  if (body.hours === undefined || body.target === undefined) {
+    const error: HttpError = new Error('parameters are missing');
+    error.status = 400;
+    next(error);
+  }
+
+  if (
+    body.hours.some((h) => typeof h !== 'number') ||
+    typeof body.target !== 'number'
+  ) {
     const error: HttpError = new Error('malformatted parameters');
     error.status = 400;
     next(error);
   }
 
-  const result = calculateExercises(dailyExerciseHours, target);
-  res.json({ result });
+  const result = calculateExercises(body.hours, body.target);
+  res.json(result);
 });
 
 // Custom error middleware
