@@ -34,4 +34,4 @@ export type CoursePart =
   | CoursePartBasic
   | CoursePartGroup
   | CoursePartBackground
-  | CoursePartChallenge;
+  | CoursePartSpecial;
