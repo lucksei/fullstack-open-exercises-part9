@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { NewDiaryEntry } from '../types';
+import { Visibility, Weather, type NewDiaryEntry } from '../types';
 import toNewDiaryEntry from '../utils';
 import ErrorMessage from './ErrorMessage';
 
@@ -40,7 +40,7 @@ const NewDiaryForm = (props: {
         <div>
           <label htmlFor="date">date</label>
           <input
-            type="text"
+            type="date"
             id="date"
             name="date"
             value={date}
@@ -48,24 +48,36 @@ const NewDiaryForm = (props: {
           />
         </div>
         <div>
-          <label htmlFor="visibility">visibility</label>
-          <input
-            type="text"
-            id="visibility"
-            name="visibility"
-            value={visibility}
-            onChange={(e) => setVisibility(e.target.value)}
-          />
+          visibility:
+          {Object.values(Visibility).map((v: Visibility) => (
+            <>
+              <input
+                type="radio"
+                id={`visibility-${v}`}
+                name="visibility"
+                checked={v === visibility}
+                value={v}
+                onChange={(e) => setVisibility(e.target.value)}
+              />
+              <label htmlFor={`visibility-${v}`}>{v}</label>
+            </>
+          ))}
         </div>
         <div>
-          <label htmlFor="weather">weather</label>
-          <input
-            type="text"
-            id="weather"
-            name="weather"
-            value={weather}
-            onChange={(e) => setWeather(e.target.value)}
-          />
+          Weather:
+          {Object.values(Weather).map((v: Weather) => (
+            <>
+              <input
+                type="radio"
+                id={`weather-${v}`}
+                name="weather"
+                checked={v === weather}
+                value={v}
+                onChange={(e) => setWeather(e.target.value)}
+              />
+              <label htmlFor={`weather-${v}`}>{v}</label>
+            </>
+          ))}
         </div>
         <div>
           <label htmlFor="comment">comment</label>
