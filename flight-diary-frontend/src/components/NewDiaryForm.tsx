@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import type { NewDiaryEntry } from '../types';
 import toNewDiaryEntry from '../utils';
+import ErrorMessage from './ErrorMessage';
 
 const NewDiaryForm = (props: {
   handleAddNewDiary: (newDiaryEntry: NewDiaryEntry) => void;
+  handleErrorMessage: (errorMessage: string) => void;
+  errorMessage: string | null;
 }) => {
-  const { handleAddNewDiary } = props;
+  const { handleAddNewDiary, handleErrorMessage, errorMessage } = props;
   const [date, setDate] = useState<string>('');
   const [visibility, setVisibility] = useState<string>('');
   const [weather, setWeather] = useState<string>('');
@@ -13,17 +16,26 @@ const NewDiaryForm = (props: {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const newDiaryEntry: NewDiaryEntry = toNewDiaryEntry({
-      date,
-      visibility,
-      weather,
-      comment,
-    });
-    handleAddNewDiary(newDiaryEntry);
+    try {
+      const newDiaryEntry: NewDiaryEntry = toNewDiaryEntry({
+        date,
+        visibility,
+        weather,
+        comment,
+      });
+      handleAddNewDiary(newDiaryEntry);
+    } catch (error: unknown) {
+      console.log(error);
+      if (error instanceof Error) {
+        handleErrorMessage(error.message);
+      }
+    }
   };
+
   return (
     <>
       <h2>Add new entry</h2>
+      <ErrorMessage errorMessage={errorMessage} />
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="date">date</label>

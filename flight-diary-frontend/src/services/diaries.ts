@@ -7,9 +7,19 @@ const getDiaries = async (): Promise<DiaryEntry[]> => {
   return response.data;
 };
 
-const addDiaryEntry = async (newDiaryEntry: NewDiaryEntry) => {
-  const response = await axios.post<DiaryEntry>(baseUrl, newDiaryEntry);
-  return response.data;
+const addDiaryEntry = async (
+  newDiaryEntry: NewDiaryEntry
+): Promise<DiaryEntry> => {
+  try {
+    const response = await axios.post<DiaryEntry>(baseUrl, newDiaryEntry);
+    return response.data;
+  } catch (error: unknown) {
+    console.error(error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(`Error ${error.status}: ${error.message}`);
+    }
+    throw new Error('An unknown error occurred');
+  }
 };
 
 export default { getDiaries, addDiaryEntry };
