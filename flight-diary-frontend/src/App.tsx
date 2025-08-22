@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import diariesService from './services/diaries';
-import type { DiaryEntry } from './types';
+import NewDiaryForm from './components/NewDiaryForm';
+import type { DiaryEntry, NewDiaryEntry } from './types';
+import Diaries from './components/Diaries';
 
 function App() {
   const [diaries, setDiaries] = useState<DiaryEntry[] | undefined>(undefined);
@@ -13,18 +15,15 @@ function App() {
 
     void fetchDiaries();
   }, []);
+
+  const handleAddNewDiary = async (newDiaryEntry: NewDiaryEntry) => {
+    const addedDiary = await diariesService.addDiaryEntry(newDiaryEntry);
+    setDiaries(diaries?.concat(addedDiary));
+  };
   return (
     <div>
-      <h2>Diary entries</h2>
-      <div>
-        {diaries?.map((d) => (
-          <div key={d.id}>
-            <h3>{d.date}</h3>
-            <div>visibility: {d.visibility}</div>
-            <div>weather: {d.weather}</div>
-          </div>
-        ))}
-      </div>
+      <NewDiaryForm handleAddNewDiary={handleAddNewDiary} />
+      <Diaries diaries={diaries} />
     </div>
   );
 }
