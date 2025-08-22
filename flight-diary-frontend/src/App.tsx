@@ -3,7 +3,6 @@ import diariesService from './services/diaries';
 import NewDiaryForm from './components/NewDiaryForm';
 import type { DiaryEntry, NewDiaryEntry } from './types';
 import Diaries from './components/Diaries';
-import { AxiosError } from 'axios';
 
 function App() {
   const [diaries, setDiaries] = useState<DiaryEntry[] | undefined>(undefined);
