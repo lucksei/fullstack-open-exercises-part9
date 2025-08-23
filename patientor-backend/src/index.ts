@@ -1,9 +1,10 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express from 'express';
 import diagnosesRouter from './routes/diagnoses';
 import patientsRotuer from './routes/patients';
-import z from 'zod';
+import { errorMiddleware } from './middlewares';
 
 const app = express();
+
 app.use(express.json());
 
 // Routes
@@ -14,15 +15,7 @@ app.get('/api/ping', (_req, res) => {
   res.send('pong');
 });
 
-// Error Middleware
-app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
-  console.error(error);
-  if (error instanceof z.ZodError) {
-    return res.status(400).json({ error: error.issues });
-  } else {
-    return res.status(400).json({ error: 'Something went wrong' });
-  }
-});
+app.use(errorMiddleware);
 
 const PORT = 3000;
 app.listen(PORT, () => {
