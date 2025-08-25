@@ -1,11 +1,7 @@
 import express, { Request, Response } from 'express';
 
 import { getPatients, getPatient, addPatient } from '../services/patients';
-import {
-  NewPatientEntry,
-  NonSensitivePatient,
-  PatientWithoutSsn,
-} from '../types';
+import { NewPatientEntry, NonSensitivePatient, Patient } from '../types';
 import { newPatientParser } from '../middlewares';
 
 const router = express.Router();
@@ -15,7 +11,7 @@ router.get('/', (_req, res: Response<NonSensitivePatient[]>) => {
   return res.json(patients);
 });
 
-router.get('/:id', (req, res: Response<PatientWithoutSsn>) => {
+router.get('/:id', (req, res: Response<Patient>) => {
   const id = req.params.id;
   const patient = getPatient(id);
   if (patient === undefined) {
