@@ -12,13 +12,16 @@ const router = express.Router();
 
 router.get('/', (_req, res: Response<NonSensitivePatient[]>) => {
   const patients = getPatients();
-  res.json(patients);
+  return res.json(patients);
 });
 
 router.get('/:id', (req, res: Response<PatientWithoutSsn>) => {
   const id = req.params.id;
   const patient = getPatient(id);
-  res.json(patient);
+  if (patient === undefined) {
+    return res.status(404).end();
+  }
+  return res.json(patient);
 });
 
 router.post(
