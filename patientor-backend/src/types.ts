@@ -64,6 +64,7 @@ export type Entry =
   | HospitalEntry;
 
 // *** Patient ***
+
 export interface Patient {
   id: string;
   name: string;

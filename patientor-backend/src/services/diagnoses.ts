@@ -6,4 +6,9 @@ const getDiagnoses = (): Diagnosis[] => {
   return diagnosesData;
 };
 
-export { getDiagnoses };
+const getDiagnose = (code: string): Diagnosis | undefined => {
+  const diagnose = diagnosesData.find((d) => d.code === code);
+  return diagnose;
+};
+
+export { getDiagnoses, getDiagnose };
