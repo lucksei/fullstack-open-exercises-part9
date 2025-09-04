@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import patientsService from '../../services/patients';
 import {
+  Box,
+  Paper,
   Card,
   CardContent,
   Divider,
@@ -12,9 +14,47 @@ import {
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
 
-import type { Patient } from '../../types';
+import type { Patient, Entry as EntryType } from '../../types';
 
 interface Props {}
+
+interface EntriesProps {
+  entries: EntryType[];
+}
+
+const Entries = (props: EntriesProps) => {
+  const { entries } = props;
+  return (
+    <List>
+      {entries.map((entry) => {
+        return (
+          <Paper
+            key={entry.id}
+            variant="outlined"
+            sx={{
+              display: 'flex',
+              flexDirection: 'column ',
+              alignContent: 'start',
+              justifyContent: 'start',
+              p: 2,
+            }}
+          >
+            <Box sx={{ display: 'flex' }}>
+              <Typography variant="body2">
+                {entry.date}: <i>{entry.description}</i>
+              </Typography>
+            </Box>
+            <ul>
+              {entry.diagnosisCodes?.map((code) => (
+                <li>{code}</li>
+              ))}
+            </ul>
+          </Paper>
+        );
+      })}
+    </List>
+  );
+};
 
 const PatientInfoPage = (_props: Props) => {
   const { patientId } = useParams();
@@ -48,10 +88,15 @@ const PatientInfoPage = (_props: Props) => {
           </Typography>
           <Divider sx={{ mt: 2 }} />
           <List>
-            {/* <ListItem>Gender: {patient.gender}</ListItem> */}
             <ListItem>Birth: {patient.dateOfBirth}</ListItem>
             <ListItem>SSN: {patient.ssn}</ListItem>
             <ListItem>Occupation: {patient.occupation}</ListItem>
+          </List>
+          <Typography component="h4" variant="h6">
+            Entries
+          </Typography>
+          <List>
+            <Entries entries={patient.entries} />
           </List>
         </CardContent>
       </Card>
