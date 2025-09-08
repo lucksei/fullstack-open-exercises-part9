@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import patientsService from '../../services/patients';
 import {
-  Box,
-  Paper,
   Card,
   CardContent,
   Divider,
@@ -14,51 +11,20 @@ import {
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
 
-import type { Patient, Entry as EntryType } from '../../types';
+import Entries from './Entries';
+import patientsService from '../../services/patients';
+import diagnosesService from '../../services/diagnoses';
 
-interface Props {}
+import type { Patient, Diagnosis } from '../../types';
 
-interface EntriesProps {
-  entries: EntryType[];
-}
-
-const Entries = (props: EntriesProps) => {
-  const { entries } = props;
-  return (
-    <List>
-      {entries.map((entry) => {
-        return (
-          <Paper
-            key={entry.id}
-            variant="outlined"
-            sx={{
-              display: 'flex',
-              flexDirection: 'column ',
-              alignContent: 'start',
-              justifyContent: 'start',
-              p: 2,
-            }}
-          >
-            <Box sx={{ display: 'flex' }}>
-              <Typography variant="body2">
-                {entry.date}: <i>{entry.description}</i>
-              </Typography>
-            </Box>
-            <ul>
-              {entry.diagnosisCodes?.map((code) => (
-                <li>{code}</li>
-              ))}
-            </ul>
-          </Paper>
-        );
-      })}
-    </List>
-  );
-};
-
-const PatientInfoPage = (_props: Props) => {
+const PatientInfoPage = () => {
   const { patientId } = useParams();
   const [patient, setPatient] = useState<Patient | undefined>(undefined);
+  const [diagnoses, setDiagnoses] = useState<Diagnosis[] | undefined>(
+    undefined
+  );
+
+  // Load patient
   useEffect(() => {
     const fetchPatient = async () => {
       if (patientId) {
@@ -68,9 +34,32 @@ const PatientInfoPage = (_props: Props) => {
     void fetchPatient();
   }, [patientId]);
 
-  console.log(patient);
+  // Load Diagnoses
+  useEffect(() => {
+    const fetchDiagnoses = async () => {
+      let diagnosesArray: Diagnosis[] = [];
+      if (!patient?.entries) {
+        return; // Safety
+      }
+      for (const entry of patient.entries) {
+        if (!entry.diagnosisCodes) {
+          return; // Safety
+        }
+        for (const code of entry.diagnosisCodes) {
+          const diagnosis = await diagnosesService.get(code);
+          diagnosesArray = diagnosesArray.concat(diagnosis);
+        }
+      }
+      setDiagnoses(diagnosesArray);
+    };
+    void fetchDiagnoses();
+  }, [patient?.entries]);
 
   if (!patient) {
+    return null;
+  }
+
+  if (!diagnoses) {
     return null;
   }
 
@@ -96,7 +85,7 @@ const PatientInfoPage = (_props: Props) => {
             Entries
           </Typography>
           <List>
-            <Entries entries={patient.entries} />
+            <Entries entries={patient.entries} diagnoses={diagnoses} />
           </List>
         </CardContent>
       </Card>
