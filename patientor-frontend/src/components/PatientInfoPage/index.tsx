@@ -13,16 +13,12 @@ import FemaleIcon from '@mui/icons-material/Female';
 
 import Entries from './Entries';
 import patientsService from '../../services/patients';
-import diagnosesService from '../../services/diagnoses';
 
-import type { Patient, Diagnosis } from '../../types';
+import type { Patient } from '../../types';
 
 const PatientInfoPage = () => {
   const { patientId } = useParams();
   const [patient, setPatient] = useState<Patient | undefined>(undefined);
-  const [diagnoses, setDiagnoses] = useState<Diagnosis[] | undefined>(
-    undefined
-  );
 
   // Load patient
   useEffect(() => {
@@ -33,28 +29,6 @@ const PatientInfoPage = () => {
     };
     void fetchPatient();
   }, [patientId]);
-
-  // Load Diagnoses
-  useEffect(() => {
-    const fetchDiagnoses = async () => {
-      let diagnosesArray: Diagnosis[] = [];
-      if (!patient?.entries) {
-        return; // Safety
-      }
-      for (const entry of patient.entries) {
-        if (!entry.diagnosisCodes) {
-          setDiagnoses(diagnosesArray);
-          return; // Safety
-        }
-        for (const code of entry.diagnosisCodes) {
-          const diagnosis = await diagnosesService.get(code);
-          diagnosesArray = diagnosesArray.concat(diagnosis);
-        }
-      }
-      setDiagnoses(diagnosesArray);
-    };
-    void fetchDiagnoses();
-  }, [patient?.entries]);
 
   if (!patient) {
     return null;
@@ -82,7 +56,7 @@ const PatientInfoPage = () => {
             Entries
           </Typography>
           <List>
-            <Entries entries={patient.entries} diagnoses={diagnoses} />
+            <Entries entries={patient.entries} />
           </List>
         </CardContent>
       </Card>
