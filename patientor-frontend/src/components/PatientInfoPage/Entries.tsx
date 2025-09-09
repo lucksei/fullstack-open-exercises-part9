@@ -4,13 +4,15 @@ import type { Diagnosis, Entry as EntryType } from '../../types';
 
 interface EntriesProps {
   entries: EntryType[];
-  diagnoses: Diagnosis[];
+  diagnoses: Diagnosis[] | undefined;
 }
 
 const Entries = (props: EntriesProps) => {
   const { entries, diagnoses } = props;
 
-  console.log(diagnoses);
+  if (!diagnoses) {
+    return null;
+  }
 
   return (
     <List>

@@ -43,6 +43,7 @@ const PatientInfoPage = () => {
       }
       for (const entry of patient.entries) {
         if (!entry.diagnosisCodes) {
+          setDiagnoses(diagnosesArray);
           return; // Safety
         }
         for (const code of entry.diagnosisCodes) {
@@ -56,10 +57,6 @@ const PatientInfoPage = () => {
   }, [patient?.entries]);
 
   if (!patient) {
-    return null;
-  }
-
-  if (!diagnoses) {
     return null;
   }
 
