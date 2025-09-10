@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Box, Paper, Typography } from '@mui/material';
+import { Box, Divider, Paper, Typography } from '@mui/material';
 import diagnosesService from '../../services/diagnoses';
+import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
+import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
+import WorkIcon from '@mui/icons-material/Work';
 
 import type { Diagnosis, Entry as EntryType } from '../../types';
+import HealthRatingBar from '../HealthRatingBar';
 
 interface EntryProps {
   entry: EntryType;
@@ -37,32 +41,110 @@ const Entry = (props: EntryProps) => {
     return null;
   }
 
-  return (
-    <Paper
-      key={entry.id}
-      variant="outlined"
-      sx={{
-        display: 'flex',
-        flexDirection: 'column ',
-        alignContent: 'start',
-        justifyContent: 'start',
-        p: 2,
-      }}
-    >
-      <Box sx={{ display: 'flex' }}>
-        <Typography variant="body2">
-          {entry.date}: <i>{entry.description}</i>
+  const baseEntry = (entryTypeLabel: JSX.Element, extra: JSX.Element) => {
+    return (
+      <Paper
+        variant="outlined"
+        sx={{
+          display: 'flex',
+          flexDirection: 'column ',
+          alignContent: 'start',
+          justifyContent: 'start',
+          pt: 2,
+          pb: 1,
+          px: 2,
+          gap: 1,
+        }}
+      >
+        <Typography
+          variant="body2"
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          {entryTypeLabel}
+          {entry.date}
         </Typography>
-      </Box>
-      <ul>
-        {entry.diagnosisCodes?.map((code) => (
-          <li key={code}>
-            {code}: {diagnoses.find((d) => d.code === code)?.name}
-          </li>
-        ))}
-      </ul>
-    </Paper>
-  );
+        <Divider />
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+          <Typography variant="body2">
+            <i>{entry.description}</i>
+          </Typography>
+        </Box>
+        <ul>
+          {entry.diagnosisCodes?.map((code) => (
+            <li key={code}>
+              {code}: {diagnoses.find((d) => d.code === code)?.name}
+            </li>
+          ))}
+        </ul>
+        {/* optional stuff here??? */}
+        {extra}
+        {/* optional stuff end */}
+        <Divider />
+        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+          Diagnose by {entry.specialist}
+        </Typography>
+      </Paper>
+    );
+  };
+
+  switch (entry.type) {
+    case 'HealthCheck': {
+      return baseEntry(
+        <Typography
+          variant="body2"
+          sx={{ display: 'flex', alignItems: 'center' }}
+        >
+          <MedicalServicesIcon />
+          Health Check
+        </Typography>,
+        <Box sx={{ display: 'flex' }}>
+          <HealthRatingBar rating={entry.healthCheckRating} showText={false} />
+        </Box>
+      );
+    }
+    case 'OccupationalHealthcare': {
+      return baseEntry(
+        <Typography
+          variant="body2"
+          sx={{ display: 'flex', alignItems: 'center' }}
+        >
+          <WorkIcon />
+          Occupational Healthcare
+        </Typography>,
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+          <Box>Employer: {entry.employerName}</Box>
+          {entry.sickLeave ? (
+            <Box>
+              Sick Leave: {entry.sickLeave.startDate} -{' '}
+              {entry.sickLeave.endDate}
+            </Box>
+          ) : null}
+        </Box>
+      );
+    }
+    case 'Hospital': {
+      return baseEntry(
+        <Typography
+          variant="body2"
+          sx={{ display: 'flex', alignItems: 'center' }}
+        >
+          <LocalHospitalIcon />
+          Hospital
+        </Typography>,
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+          <Box>Discharge: {entry.discharge.date}</Box>
+          <Box>Criteria: {entry.discharge.criteria}</Box>
+        </Box>
+      );
+    }
+    default: {
+      console.error('Unknown entry type for entry');
+    }
+  }
 };
 
 export default Entry;
