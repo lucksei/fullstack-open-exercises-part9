@@ -50,6 +50,7 @@ const Entry = (props: EntryProps) => {
           flexDirection: 'column ',
           alignContent: 'start',
           justifyContent: 'start',
+          my: 1,
           pt: 2,
           pb: 1,
           px: 2,
