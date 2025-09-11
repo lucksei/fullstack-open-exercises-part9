@@ -1,8 +1,14 @@
 import express, { Request, Response } from 'express';
 
 import { getPatients, getPatient, addPatient } from '../services/patients';
-import { NewPatientEntry, NonSensitivePatient, Patient } from '../types';
-import { newPatientParser } from '../middlewares';
+import { addEntry } from '../services/entries';
+import { newPatientParser, newEntryParser } from '../middlewares';
+import {
+  NewPatientEntry,
+  NonSensitivePatient,
+  Patient,
+  EntryWithoutId,
+} from '../types';
 
 const router = express.Router();
 
@@ -29,6 +35,19 @@ router.post(
   ) => {
     const newPatient = addPatient(req.body);
     return res.json(newPatient);
+  }
+);
+
+router.post(
+  '/:id/entries',
+  newEntryParser,
+  (
+    req: Request<{ id: string }, unknown, EntryWithoutId>,
+    res: Response<EntryWithoutId>
+  ) => {
+    const patientId = req.params.id;
+    const newEntry = addEntry(patientId, req.body);
+    return res.json(newEntry);
   }
 );
 
