@@ -6,14 +6,14 @@ import type { Entry as EntryType, EntryWithoutId } from '../../types';
 
 interface EntriesProps {
   entries: EntryType[];
+  handleSubmit: (_entry: EntryWithoutId) => void;
 }
 
 const Entries = (props: EntriesProps) => {
   const { entries } = props;
 
   const handleSubmit = (entry: EntryWithoutId) => {
-    console.log('New entry submitted');
-    console.log(entry);
+    props.handleSubmit(entry);
   };
 
   return (

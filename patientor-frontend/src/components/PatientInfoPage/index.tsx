@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {
+  Alert,
   Card,
   CardContent,
   Divider,
@@ -14,11 +15,18 @@ import FemaleIcon from '@mui/icons-material/Female';
 import Entries from './Entries';
 import patientsService from '../../services/patients';
 
-import type { Patient } from '../../types';
+import type { EntryWithoutId, Patient } from '../../types';
+import axios from 'axios';
+
+interface Alert {
+  type: 'success' | 'error';
+  message: string;
+}
 
 const PatientInfoPage = () => {
   const { patientId } = useParams();
   const [patient, setPatient] = useState<Patient | undefined>(undefined);
+  const [alert, setAlert] = useState<Alert | undefined>(undefined);
 
   // Load patient
   useEffect(() => {
@@ -33,6 +41,21 @@ const PatientInfoPage = () => {
   if (!patient) {
     return null;
   }
+
+  const handleSubmit = async (entry: EntryWithoutId) => {
+    try {
+      await patientsService.createPatientEntry(patient.id, entry);
+      const updatedPatient = await patientsService.get(patient.id);
+      setPatient(updatedPatient);
+    } catch (error: unknown) {
+      if (!axios.isAxiosError(error)) {
+        console.error(error);
+      }
+      if (error instanceof Error) {
+        setAlert({ type: 'error', message: error.message });
+      }
+    }
+  };
 
   return (
     <>
@@ -55,9 +78,8 @@ const PatientInfoPage = () => {
           <Typography component="h4" variant="h6">
             Entries
           </Typography>
-          <List>
-            <Entries entries={patient.entries} />
-          </List>
+          {alert && <Alert severity={alert?.type}>{alert?.message}</Alert>}
+          <Entries entries={patient.entries} handleSubmit={handleSubmit} />
         </CardContent>
       </Card>
     </>
