@@ -35,8 +35,6 @@ const Entry = (props: EntryProps) => {
     void fetchDiagnoses();
   }, [entry.diagnosisCodes]);
 
-  console.log(diagnoses);
-
   if (!diagnoses) {
     return null;
   }
@@ -57,8 +55,7 @@ const Entry = (props: EntryProps) => {
           gap: 1,
         }}
       >
-        <Typography
-          variant="body2"
+        <Box
           sx={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -67,7 +64,7 @@ const Entry = (props: EntryProps) => {
         >
           {entryTypeLabel}
           {entry.date}
-        </Typography>
+        </Box>
         <Divider />
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <Typography variant="body2">
