@@ -15,16 +15,29 @@ import {
   EntryWithoutId as EntryWithoutIdType,
 } from '../../types';
 import { toHealthCheckRating } from '../../utils';
+import { Label } from '@mui/icons-material';
+
+enum EntryType {
+  HealthCheck = 'HealthCheck',
+  OccupationalHealthcare = 'OccupationalHealthcare',
+  Hospital = 'Hospital',
+}
 
 const NewEntryForm = (props: {
   handleSubmit: (_entry: EntryWithoutIdType) => void;
 }) => {
   const [open, setOpen] = useState(true);
+
+  const [type, setType] = useState<EntryType>(EntryType.HealthCheck);
   const [description, setDescription] = useState<string>('');
   const [date, setDate] = useState<string>('');
   const [specialist, setSpecialist] = useState<string>('');
   const [healthCheckRating, setHealthCheckRating] = useState<string>('');
+  const [sickLeaveStartDate, setSickLeaveStartDate] = useState<string>('');
+  const [sickLeaveEndDate, setSickLeaveEndDate] = useState<string>('');
   const [diagnosisCodes, setDiagnosisCodes] = useState<string[]>([]);
+  const [dischargeDate, setDischargeDate] = useState<string>('');
+  const [dischargeCriteria, setDischargeCriteria] = useState<string>('');
 
   useEffect(() => {
     setDescription('test description');
@@ -77,6 +90,19 @@ const NewEntryForm = (props: {
       <AccordionDetails>
         <form onSubmit={(e) => void handleSubmit(e)}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Autocomplete
+              size="small"
+              disablePortal
+              id="type"
+              onChange={(_e: unknown, newValue: EntryType | null) =>
+                setType(newValue || EntryType.HealthCheck)
+              }
+              value={type}
+              options={Object.values(EntryType).filter((v) => isNaN(Number(v)))}
+              renderInput={(params) => (
+                <TextField {...params} label="Entry Type" />
+              )}
+            />
             <TextField
               id="description"
               label="Description"
@@ -88,6 +114,8 @@ const NewEntryForm = (props: {
             <TextField
               id="date"
               type="date"
+              label="Date"
+              InputLabelProps={{ shrink: true }}
               variant="outlined"
               size="small"
               value={date}
@@ -100,24 +128,6 @@ const NewEntryForm = (props: {
               size="small"
               value={specialist}
               onChange={(e) => setSpecialist(e.target.value)}
-            />
-            <Autocomplete
-              size="small"
-              disablePortal
-              id="healthCheckRating"
-              onChange={(_e: unknown, newValue: string | null) =>
-                setHealthCheckRating(newValue || '')
-              }
-              value={healthCheckRating}
-              options={[
-                ...(Object.values(HealthCheckRatingType).filter((v) =>
-                  isNaN(Number(v))
-                ) as string[]),
-                '',
-              ]}
-              renderInput={(params) => (
-                <TextField {...params} label="Health Check Rating" />
-              )}
             />
             <Autocomplete
               id="diagnosisCodes"
@@ -134,6 +144,83 @@ const NewEntryForm = (props: {
                 <TextField {...params} label="Diagnosis Codes" />
               )}
             />
+            {type === EntryType.HealthCheck && (
+              <>
+                <Typography variant="body1" color="secondary">
+                  Sick Leave
+                </Typography>
+                <Autocomplete
+                  size="small"
+                  disablePortal
+                  id="healthCheckRating"
+                  onChange={(_e: unknown, newValue: string | null) =>
+                    setHealthCheckRating(newValue || '')
+                  }
+                  value={healthCheckRating}
+                  options={[
+                    ...(Object.values(HealthCheckRatingType).filter((v) =>
+                      isNaN(Number(v))
+                    ) as string[]),
+                    '',
+                  ]}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Health Check Rating" />
+                  )}
+                />
+              </>
+            )}
+            {type === EntryType.OccupationalHealthcare && (
+              <>
+                <Typography variant="body1" color="secondary">
+                  Sick Leave
+                </Typography>
+                <TextField
+                  id="sickLeaveStartDate"
+                  type="date"
+                  label="Sick Leave Start Date"
+                  InputLabelProps={{ shrink: true }}
+                  variant="outlined"
+                  size="small"
+                  value={sickLeaveStartDate}
+                  onChange={(e) => setSickLeaveStartDate(e.target.value)}
+                />
+                <TextField
+                  id="sickLeaveEndDate"
+                  type="date"
+                  label="Sick Leave End Date"
+                  InputLabelProps={{ shrink: true }}
+                  variant="outlined"
+                  size="small"
+                  value={sickLeaveEndDate}
+                  onChange={(e) => setSickLeaveEndDate(e.target.value)}
+                />
+              </>
+            )}
+            {type === EntryType.Hospital && (
+              <>
+                <Typography variant="body1" color="secondary">
+                  Discharge
+                </Typography>
+                <TextField
+                  id="dischargeDate"
+                  type="date"
+                  label="Discharge Date"
+                  InputLabelProps={{ shrink: true }}
+                  variant="outlined"
+                  size="small"
+                  value={dischargeDate}
+                  onChange={(e) => setDischargeDate(e.target.value)}
+                />
+                <TextField
+                  id="dischargeCriteria"
+                  label="Discharge Criteria"
+                  variant="outlined"
+                  size="small"
+                  value={dischargeCriteria}
+                  onChange={(e) => setDischargeCriteria(e.target.value)}
+                />
+              </>
+            )}
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Button
                 variant="contained"
