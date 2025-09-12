@@ -10,9 +10,9 @@ const newPatientSchema = z.object({
 });
 
 const newBaseEntrySchema = z.object({
-  date: z.string(),
-  specialist: z.string(),
-  description: z.string(),
+  date: z.string().date(),
+  specialist: z.string().min(1).max(100),
+  description: z.string().min(1).max(1000),
   diagnosisCodes: z.array(z.string()).optional(),
 });
 

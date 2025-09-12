@@ -1,3 +1,4 @@
+import { isAxiosError, AxiosError } from 'axios';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {
@@ -16,9 +17,8 @@ import Entries from './Entries';
 import patientsService from '../../services/patients';
 
 import type { EntryWithoutId, Patient } from '../../types';
-import axios from 'axios';
 
-interface Alert {
+interface AlertType {
   type: 'success' | 'error';
   message: string;
 }
@@ -26,7 +26,7 @@ interface Alert {
 const PatientInfoPage = () => {
   const { patientId } = useParams();
   const [patient, setPatient] = useState<Patient | undefined>(undefined);
-  const [alert, setAlert] = useState<Alert | undefined>(undefined);
+  const [alert, setAlert] = useState<AlertType | undefined>(undefined);
 
   // Load patient
   useEffect(() => {
@@ -48,12 +48,18 @@ const PatientInfoPage = () => {
       const updatedPatient = await patientsService.get(patient.id);
       setPatient(updatedPatient);
     } catch (error: unknown) {
-      if (!axios.isAxiosError(error)) {
-        console.error(error);
+      if (isAxiosError(error)) {
+        error as AxiosError;
+        console.log(error.response?.data.error[0]);
+        const errorMessageCode = error.response?.data.error[0].code;
+        const errorMessagePath = error.response?.data.error[0].path[0];
+        const errorMessageDetail = error.response?.data.error[0].message;
+        setAlert({
+          type: 'error',
+          message: `${errorMessagePath} (${errorMessageCode}): ${errorMessageDetail}`,
+        });
       }
-      if (error instanceof Error) {
-        setAlert({ type: 'error', message: error.message });
-      }
+      console.error(error);
     }
   };
 
