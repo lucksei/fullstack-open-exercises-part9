@@ -15,7 +15,6 @@ import {
   EntryWithoutId as EntryWithoutIdType,
 } from '../../types';
 import { toHealthCheckRating } from '../../utils';
-import { Label } from '@mui/icons-material';
 
 enum EntryType {
   HealthCheck = 'HealthCheck',
@@ -33,6 +32,7 @@ const NewEntryForm = (props: {
   const [date, setDate] = useState<string>('');
   const [specialist, setSpecialist] = useState<string>('');
   const [healthCheckRating, setHealthCheckRating] = useState<string>('');
+  const [employerName, setEmployerName] = useState<string>('');
   const [sickLeaveStartDate, setSickLeaveStartDate] = useState<string>('');
   const [sickLeaveEndDate, setSickLeaveEndDate] = useState<string>('');
   const [diagnosisCodes, setDiagnosisCodes] = useState<string[]>([]);
@@ -58,16 +58,55 @@ const NewEntryForm = (props: {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const newEntry: EntryWithoutIdType = {
-      date,
-      description,
-      specialist,
-      type: 'HealthCheck',
-      healthCheckRating: toHealthCheckRating(healthCheckRating),
-      diagnosisCodes,
-    };
-
-    props.handleSubmit(newEntry);
+    switch (type) {
+      case EntryType.HealthCheck: {
+        const newEntry: EntryWithoutIdType = {
+          type: 'HealthCheck',
+          description,
+          date,
+          specialist,
+          diagnosisCodes,
+          healthCheckRating: toHealthCheckRating(healthCheckRating),
+        };
+        props.handleSubmit(newEntry);
+        break;
+      }
+      case EntryType.OccupationalHealthcare: {
+        const newEntry: EntryWithoutIdType = {
+          type: 'OccupationalHealthcare',
+          description,
+          date,
+          specialist,
+          diagnosisCodes,
+          employerName,
+          sickLeave: {
+            startDate: sickLeaveStartDate,
+            endDate: sickLeaveEndDate,
+          },
+        };
+        props.handleSubmit(newEntry);
+        break;
+      }
+      case EntryType.Hospital: {
+        const newEntry: EntryWithoutIdType = {
+          type: 'Hospital',
+          description,
+          date,
+          specialist,
+          diagnosisCodes,
+          discharge: {
+            date: dischargeDate,
+            criteria: dischargeCriteria,
+          },
+        };
+        props.handleSubmit(newEntry);
+        break;
+      }
+      default: {
+        console.error('Invalid entry type');
+        break;
+      }
+    }
     console.log('New entry submitted');
 
     setDescription('');
@@ -147,7 +186,7 @@ const NewEntryForm = (props: {
             {type === EntryType.HealthCheck && (
               <>
                 <Typography variant="body1" color="secondary">
-                  Sick Leave
+                  Health Check Rating
                 </Typography>
                 <Autocomplete
                   size="small"
@@ -174,6 +213,14 @@ const NewEntryForm = (props: {
                 <Typography variant="body1" color="secondary">
                   Sick Leave
                 </Typography>
+                <TextField
+                  id="employerName"
+                  label="Employer Name"
+                  variant="outlined"
+                  size="small"
+                  value={employerName}
+                  onChange={(e) => setEmployerName(e.target.value)}
+                />
                 <TextField
                   id="sickLeaveStartDate"
                   type="date"
