@@ -6,19 +6,23 @@ import type { Entry as EntryType, EntryWithoutId } from '../../types';
 
 interface EntriesProps {
   entries: EntryType[];
-  handleSubmit: (_entry: EntryWithoutId) => void;
+  handleSubmit: (_entry: EntryWithoutId) => Promise<void>;
+  diagnosisCodesOptions?: string[];
 }
 
 const Entries = (props: EntriesProps) => {
   const { entries } = props;
 
-  const handleSubmit = (entry: EntryWithoutId) => {
-    props.handleSubmit(entry);
+  const handleSubmit = async (entry: EntryWithoutId) => {
+    await props.handleSubmit(entry);
   };
 
   return (
     <>
-      <NewEntryForm handleSubmit={handleSubmit} />
+      <NewEntryForm
+        handleSubmit={handleSubmit}
+        diagnosisCodesOptions={props.diagnosisCodesOptions}
+      />
       {entries.length === 0 ? (
         <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
           Patient has no entries

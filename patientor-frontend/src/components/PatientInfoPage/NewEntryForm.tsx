@@ -23,7 +23,8 @@ enum EntryType {
 }
 
 const NewEntryForm = (props: {
-  handleSubmit: (_entry: EntryWithoutIdType) => void;
+  handleSubmit: (_entry: EntryWithoutIdType) => Promise<void>;
+  diagnosisCodesOptions?: string[];
 }) => {
   const [open, setOpen] = useState(true);
 
@@ -54,66 +55,78 @@ const NewEntryForm = (props: {
     setSpecialist('');
     setHealthCheckRating('');
     setDiagnosisCodes([]);
+    setEmployerName('');
+    setSickLeaveStartDate('');
+    setSickLeaveEndDate('');
+    setDischargeDate('');
+    setDischargeCriteria('');
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    switch (type) {
-      case EntryType.HealthCheck: {
-        const newEntry: EntryWithoutIdType = {
-          type: 'HealthCheck',
-          description,
-          date,
-          specialist,
-          diagnosisCodes,
-          healthCheckRating: toHealthCheckRating(healthCheckRating),
-        };
-        props.handleSubmit(newEntry);
-        break;
+    try {
+      switch (type) {
+        case EntryType.HealthCheck: {
+          const newEntry: EntryWithoutIdType = {
+            type: 'HealthCheck',
+            description,
+            date,
+            specialist,
+            diagnosisCodes,
+            healthCheckRating: toHealthCheckRating(healthCheckRating),
+          };
+          await props.handleSubmit(newEntry);
+          break;
+        }
+        case EntryType.OccupationalHealthcare: {
+          const newEntry: EntryWithoutIdType = {
+            type: 'OccupationalHealthcare',
+            description,
+            date,
+            specialist,
+            diagnosisCodes,
+            employerName,
+            sickLeave: {
+              startDate: sickLeaveStartDate,
+              endDate: sickLeaveEndDate,
+            },
+          };
+          await props.handleSubmit(newEntry);
+          break;
+        }
+        case EntryType.Hospital: {
+          const newEntry: EntryWithoutIdType = {
+            type: 'Hospital',
+            description,
+            date,
+            specialist,
+            diagnosisCodes,
+            discharge: {
+              date: dischargeDate,
+              criteria: dischargeCriteria,
+            },
+          };
+          await props.handleSubmit(newEntry);
+          break;
+        }
+        default: {
+          console.error('Invalid entry type');
+          break;
+        }
       }
-      case EntryType.OccupationalHealthcare: {
-        const newEntry: EntryWithoutIdType = {
-          type: 'OccupationalHealthcare',
-          description,
-          date,
-          specialist,
-          diagnosisCodes,
-          employerName,
-          sickLeave: {
-            startDate: sickLeaveStartDate,
-            endDate: sickLeaveEndDate,
-          },
-        };
-        props.handleSubmit(newEntry);
-        break;
-      }
-      case EntryType.Hospital: {
-        const newEntry: EntryWithoutIdType = {
-          type: 'Hospital',
-          description,
-          date,
-          specialist,
-          diagnosisCodes,
-          discharge: {
-            date: dischargeDate,
-            criteria: dischargeCriteria,
-          },
-        };
-        props.handleSubmit(newEntry);
-        break;
-      }
-      default: {
-        console.error('Invalid entry type');
-        break;
-      }
+      setDescription('');
+      setDate('');
+      setSpecialist('');
+      setHealthCheckRating('');
+      setDiagnosisCodes([]);
+      setEmployerName('');
+      setSickLeaveStartDate('');
+      setSickLeaveEndDate('');
+      setDischargeDate('');
+      setDischargeCriteria('');
+    } catch (error) {
+      console.error(error);
     }
-    console.log('New entry submitted');
-
-    setDescription('');
-    setDate('');
-    setSpecialist('');
-    setHealthCheckRating('');
-    setDiagnosisCodes([]);
   };
 
   return (
@@ -174,7 +187,12 @@ const NewEntryForm = (props: {
               freeSolo
               size="small"
               disablePortal
-              options={diagnosisCodes}
+              options={[
+                ...(props.diagnosisCodesOptions || []),
+                ...diagnosisCodes.filter(
+                  (v) => !props.diagnosisCodesOptions?.includes(v)
+                ),
+              ]}
               value={diagnosisCodes}
               onChange={(_e, newValue) => {
                 setDiagnosisCodes(newValue);

@@ -26,8 +26,8 @@ const newOccupationalHealthcareEntrySchema = newBaseEntrySchema.extend({
   employerName: z.string(),
   sickLeave: z
     .object({
-      startDate: z.string(),
-      endDate: z.string(),
+      startDate: z.string().date(),
+      endDate: z.string().date(),
     })
     .optional(),
 });
@@ -36,7 +36,7 @@ const newHospitalEntrySchema = newBaseEntrySchema.extend({
   type: z.literal('Hospital'),
   discharge: z
     .object({
-      date: z.string(),
+      date: z.string().date(),
       criteria: z.string(),
     })
     .optional(),

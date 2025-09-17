@@ -15,8 +15,9 @@ import FemaleIcon from '@mui/icons-material/Female';
 
 import Entries from './Entries';
 import patientsService from '../../services/patients';
+import diagnosesService from '../../services/diagnoses';
 
-import type { EntryWithoutId, Patient } from '../../types';
+import type { Diagnosis, EntryWithoutId, Patient } from '../../types';
 
 interface AlertType {
   type: 'success' | 'error';
@@ -27,6 +28,7 @@ const PatientInfoPage = () => {
   const { patientId } = useParams();
   const [patient, setPatient] = useState<Patient | undefined>(undefined);
   const [alert, setAlert] = useState<AlertType | undefined>(undefined);
+  const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
 
   // Load patient
   useEffect(() => {
@@ -37,6 +39,15 @@ const PatientInfoPage = () => {
     };
     void fetchPatient();
   }, [patientId]);
+
+  // Load diagnoses
+  useEffect(() => {
+    const fetchDiagnoses = async () => {
+      const diagnoses = await diagnosesService.getAll();
+      setDiagnoses(diagnoses);
+    };
+    void fetchDiagnoses();
+  }, []);
 
   if (!patient) {
     return null;
@@ -50,7 +61,6 @@ const PatientInfoPage = () => {
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         error as AxiosError;
-        console.log(error.response?.data.error[0]);
         const errorMessageCode = error.response?.data.error[0].code;
         const errorMessagePath = error.response?.data.error[0].path[0];
         const errorMessageDetail = error.response?.data.error[0].message;
@@ -59,7 +69,7 @@ const PatientInfoPage = () => {
           message: `${errorMessagePath} (${errorMessageCode}): ${errorMessageDetail}`,
         });
       }
-      console.error(error);
+      throw error;
     }
   };
 
@@ -85,7 +95,11 @@ const PatientInfoPage = () => {
             Entries
           </Typography>
           {alert && <Alert severity={alert?.type}>{alert?.message}</Alert>}
-          <Entries entries={patient.entries} handleSubmit={handleSubmit} />
+          <Entries
+            entries={patient.entries}
+            handleSubmit={handleSubmit}
+            diagnosisCodesOptions={diagnoses.map((diagnosis) => diagnosis.code)}
+          />
         </CardContent>
       </Card>
     </>
